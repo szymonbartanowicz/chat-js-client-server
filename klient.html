@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+<head>
+    <title>chat</title>
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font: 13px Helvetica, Arial;
+        }
+
+        form {
+            padding: 5px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        form input {
+            border: 0;
+            padding: 10px;
+            width: 90%;
+            margin-right: .5%;
+        }
+
+        form button {
+            width: 7%;
+            background: #006AFF;
+            color: #fff;
+            border-radius: 15px;
+            font-size: 12px;
+            border: none;
+            padding: 10px 0;
+        }
+
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 10px;
+        }
+
+        #messages li {
+            padding: 10px 12px;
+            font-size: 14px;
+            background: #006AFF;
+            color: #fff;
+            border: none; /* <-- This thing here */
+            border-radius: 20px;
+            width: fit-content;
+            margin-top: 5px;
+        }
+
+        #main div {
+            display: inline-block;
+            width: 50%;
+        }
+
+        #users {
+            list-style-type: none;
+            position: fixed;
+            top: 0;
+        }
+
+        #actions {
+            position: fixed;
+            bottom: 50px;
+        }
+
+        #actions ul li{
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+<div id="main">
+    <div><ul id="messages"></ul></div><div><ul id="users"><li>Uzytkownicy online:</li></ul></div>
+</div>
+
+<form action="">
+    <input id="msg" autocomplete="" placeholder="Napisz wiadomosc..." autofocus/>
+    <button>Wyslij</button>
+</form>
+
+<div id="actions">
+    <ul>
+        <li><a href="">Podlacz</a></li>
+        <li><a href="">Odlacz</a></li>
+        <li><a href="">Kto tam jest</a></li>
+        <li><a href="" id="pobudka">Pobudka</a></li>
+    </ul>
+</div>
+
+<div>
+    <img src="assets/test.png" alt="">
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script src="https://cdn.socket.io/4.3.2/socket.io.min.js"
+        integrity="sha384-KAZ4DtjNhLChOB/hxXuKqhMLYvx3b5MlT55xPEiNmREKRzeEm+RVPlTnAn0ajQNs"
+        crossorigin="anonymous"></script>
+<script>
+    const socket = io();
+
+    $('form').submit(function () {
+        socket.emit('message', $('#msg').val());
+        $('#msg').val('');
+        return false;
+    });
+
+    socket.on('message', function (msg) {
+        $('#messages').append($('<li>').text(msg));
+        $("html, body").scrollTop($(document).height());
+    });
+
+    socket.on('newUser', function (msg) {
+        $('#users').append($('<li>').text(msg));
+    })
+    
+    $('#pobudka').on('click', function (event) {
+        event.preventDefault();
+        socket.emit('pobudka', $('#msg').val());
+        let audio = new Audio("sound.wav");
+        audio.loop = false;
+        audio.play();
+    })
+</script>
+</body>
+</html>
